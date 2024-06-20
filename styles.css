@@ -1,0 +1,38 @@
+body { 
+    font-family: Arial, sans-serif; 
+}
+
+#game { 
+    margin: 50px; 
+}
+
+.ranking { 
+    margin: 10px 0; 
+    color: blue; 
+}
+
+.error { 
+    margin: 10px 0; 
+    color: red; 
+}
+
+.guess-container { 
+    display: flex; 
+    align-items: center; 
+    margin: 5px 0; 
+}
+
+.guess-bar { 
+    flex-grow: 1; 
+    height: 20px; 
+    background: linear-gradient(to right, green, yellow); 
+    margin-left: 10px; 
+    position: relative;
+}
+
+.guess-bar span { 
+    position: absolute; 
+    right: 5px; 
+    color: black; 
+    font-weight: bold;
+}

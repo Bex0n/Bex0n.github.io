@@ -1,7 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
 <body>
-<h1>Hello World</h1>
-<p>Website in progress!</p>
+    <div id="game">
+        <h1>Word Guessing Game</h1>
+        <p>Guess the word by typing in the text field below:</p>
+        <input type="text" id="guess" autocomplete="off">
+        <button onclick="checkGuess()">Guess</button>
+        <div id="ranking"></div>
+        <div id="error"></div>
+        <div id="previous-guesses"></div>
+    </div>
+    <script>
+        const targetWord = 'sand';
+        let embeddings;
+
+        fetch('embeddings.json')
+            .then(response => response.json())
+            .then(data => {
+                embeddings = data;
+            });
+
+        function cosineSimilarity(vec1, vec2) {
+            let dotProduct = 0.0;
+            let normA = 0.0;
+            let normB = 0.0;
+            for (let i = 0; i < vec1.length; i++) {
+                dotProduct += vec1[i] * vec2[i];
+                normA += vec1[i] * vec1[i];
+                normB += vec2[i] * vec2[i];
+            }
+            return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+        }
+
+        function checkGuess() {
+            const guess = document.getElementById('guess').value;
+            const rankingDiv = document.getElementById('ranking');
+            const errorDiv = document.getElementById('error');
+            const previousGuessesDiv = document.getElementById('previous-guesses');
+            
+            rankingDiv.innerHTML = '';
+            errorDiv.innerHTML = '';
+
+            if (!embeddings) {
+                errorDiv.textContent = 'Embeddings are not loaded yet. Please try again later.';
+                return;
+            }
+
+            if (!(guess in embeddings)) {
+                errorDiv.textContent = `The word "${guess}" is not in the embeddings.`;
+                return;
+            }
+
+            if (!(targetWord in embeddings)) {
+                errorDiv.textContent = `The target word "${targetWord}" is not in the embeddings.`;
+                return;
+            }
+
+            const targetEmbedding = embeddings[targetWord];
+            const similarities = [];
+
+            for (const [word, embedding] of Object.entries(embeddings)) {
+                const similarity = cosineSimilarity(targetEmbedding, embedding);
+                similarities.push({ word, similarity });
+            }
+
+            similarities.sort((a, b) => b.similarity - a.similarity);
+
+            const rank = similarities.findIndex(item => item.word === guess) + 1;
+
+            const rankingMsg = document.createElement('div');
+            rankingMsg.className = 'ranking';
+            rankingMsg.textContent = `Your guess is ranked ${rank} in similarity to the target word.`;
+            rankingDiv.appendChild(rankingMsg);
+
+            if (guess === targetWord) {
+                alert('Congratulations! You guessed the word.');
+            }
+
+            const guessContainer = document.createElement('div');
+            guessContainer.className = 'guess-container';
+
+            const guessWord = document.createElement('div');
+            guessWord.textContent = guess;
+
+            const guessBar = document.createElement('div');
+            guessBar.className = 'guess-bar';
+            guessBar.style.width = `${(1 - (rank / similarities.length)) * 100}%`;
+            const rankSpan = document.createElement('span');
+            rankSpan.textContent = rank;
+            guessBar.appendChild(rankSpan);
+
+            guessContainer.appendChild(guessWord);
+            guessContainer.appendChild(guessBar);
+
+            previousGuessesDiv.appendChild(guessContainer);
+        }
+    </script>
 </body>
 </html>
