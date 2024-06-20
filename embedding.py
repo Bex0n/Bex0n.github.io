@@ -15,7 +15,7 @@ with open('embeddings.json', 'w') as f:
     json.dump(pairs, f)
 
 # Hardcoded word
-target_word = 'example'
+target_word = 'tea'
 if target_word not in words:
     raise ValueError(f"The target word '{target_word}' is not in the word list.")
 

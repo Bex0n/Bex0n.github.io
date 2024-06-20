@@ -10,20 +10,29 @@
     <div id="game">
         <h1>Word Guessing Game</h1>
         <p>Guess the word by typing in the text field below:</p>
-        <input type="text" id="guess" autocomplete="off">
+        <input type="text" id="guess" autocomplete="off" onkeypress="handleKeyPress(event)">
         <button onclick="checkGuess()">Guess</button>
         <div id="ranking"></div>
         <div id="error"></div>
         <div id="previous-guesses"></div>
     </div>
     <script>
-        const targetWord = 'sand';
         let rankings;
+        let targetWord;
 
         fetch('ranking.json')
             .then(response => response.json())
             .then(data => {
                 rankings = data;
+                // Find the word with rank 1
+                targetWord = Object.keys(rankings).find(word => rankings[word] === 1);
+                if (!targetWord) {
+                    throw new Error('No word found with rank 1.');
+                }
+            })
+            .catch(error => {
+                const errorDiv = document.getElementById('error');
+                errorDiv.textContent = `Error loading rankings: ${error.message}`;
             });
 
         function checkGuess() {
@@ -45,8 +54,8 @@
                 return;
             }
 
-            if (!(targetWord in rankings)) {
-                errorDiv.textContent = `The target word "${targetWord}" is not in the rankings.`;
+            if (!targetWord || !(targetWord in rankings)) {
+                errorDiv.textContent = `The target word is not in the rankings.`;
                 return;
             }
 
@@ -79,6 +88,12 @@
             guessContainer.appendChild(guessBar);
 
             previousGuessesDiv.appendChild(guessContainer);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkGuess();
+            }
         }
     </script>
 </body>
