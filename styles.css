@@ -1,9 +1,49 @@
 body { 
     font-family: Arial, sans-serif; 
+    background-color: #fffaf0; /* light cream background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 #game { 
-    margin: 50px; 
+    max-width: 500px; 
+    width: 100%;
+    text-align: center;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#previous-guesses {
+    margin-top: 20px;
+    max-height: 50vh; /* Set to 50% of the viewport height */
+    padding: 20px;
+}
+
+.scrollable {
+    overflow-y: auto;
+}
+
+.scrollable::-webkit-scrollbar {
+    width: 12px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .ranking { 
@@ -17,22 +57,36 @@ body {
 }
 
 .guess-container { 
-    display: flex; 
-    align-items: center; 
-    margin: 5px 0; 
-}
-
-.guess-bar { 
-    flex-grow: 1; 
-    height: 20px; 
-    background: linear-gradient(to right, green, yellow); 
-    margin-left: 10px; 
     position: relative;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin: 10px 0; 
+    padding: 10px;
+    overflow: hidden;
+    z-index: 1;
 }
 
-.guess-bar span { 
-    position: absolute; 
-    right: 5px; 
-    color: black; 
-    font-weight: bold;
+.guess-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #b8cfcd; /* blue */
+    z-index: -1;
+    border-radius: 5px;
+}
+
+.guess-word { 
+    flex-grow: 1; 
+    text-align: left; 
+}
+
+.rank-span {
+    margin-left: 10px;
+    text-align: right;
+    flex-shrink: 0;
 }

@@ -19,6 +19,7 @@
     <script>
         let rankings;
         let targetWord;
+        const guessedWords = new Set();
 
         fetch('ranking.json')
             .then(response => response.json())
@@ -36,16 +37,22 @@
             });
 
         function checkGuess() {
-            const guess = document.getElementById('guess').value;
+            const guess = document.getElementById('guess').value.toLowerCase();
             const rankingDiv = document.getElementById('ranking');
             const errorDiv = document.getElementById('error');
             const previousGuessesDiv = document.getElementById('previous-guesses');
             
             rankingDiv.innerHTML = '';
             errorDiv.innerHTML = '';
+            document.getElementById('guess').value = '';
 
             if (!rankings) {
                 errorDiv.textContent = 'Rankings are not loaded yet. Please try again later.';
+                return;
+            }
+
+            if (guessedWords.has(guess)) {
+                errorDiv.textContent = `You already guessed the word "${guess}".`;
                 return;
             }
 
@@ -60,6 +67,9 @@
             }
 
             const rank = rankings[guess];
+            const totalWords = Object.keys(rankings).length;
+            let width = (1 - Math.log(rank) / Math.log(totalWords) / 0.85) * 120;
+            width = Math.max(0, Math.min(100, width));
 
             const rankingMsg = document.createElement('div');
             rankingMsg.className = 'ranking';
@@ -71,23 +81,44 @@
             }
 
             // Append the guess to the previous guesses list
+            guessedWords.add(guess);
+
             const guessContainer = document.createElement('div');
             guessContainer.className = 'guess-container';
 
-            const guessWord = document.createElement('div');
-            guessWord.textContent = guess;
-
             const guessBar = document.createElement('div');
             guessBar.className = 'guess-bar';
-            guessBar.style.width = `${(1 - (rank / Object.keys(rankings).length)) * 100}%`;
-            const rankSpan = document.createElement('span');
-            rankSpan.textContent = rank;
-            guessBar.appendChild(rankSpan);
+            guessBar.style.width = `${width}%`;
 
-            guessContainer.appendChild(guessWord);
+            const guessWord = document.createElement('div');
+            guessWord.className = 'guess-word';
+            guessWord.textContent = guess;
+
+            const rankSpan = document.createElement('div');
+            rankSpan.className = 'rank-span';
+            rankSpan.textContent = rank;
+
             guessContainer.appendChild(guessBar);
+            guessContainer.appendChild(guessWord);
+            guessContainer.appendChild(rankSpan);
 
             previousGuessesDiv.appendChild(guessContainer);
+
+            // Make guesses list scrollable if it exceeds 50% of the page height
+            if (previousGuessesDiv.scrollHeight > window.innerHeight * 0.5) {
+                previousGuessesDiv.classList.add('scrollable');
+            }
+
+            // Sort guesses by rank
+            const guessContainers = Array.from(previousGuessesDiv.children);
+            guessContainers.sort((a, b) => {
+                const rankA = parseInt(a.querySelector('.rank-span').textContent);
+                const rankB = parseInt(b.querySelector('.rank-span').textContent);
+                return rankA - rankB;
+            });
+
+            previousGuessesDiv.innerHTML = '';
+            guessContainers.forEach(container => previousGuessesDiv.appendChild(container));
         }
 
         function handleKeyPress(event) {
