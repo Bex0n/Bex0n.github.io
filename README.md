@@ -1,2 +1,3 @@
 # Bex0n.github.io
-My project website
+
+App to guess the word based on associations
